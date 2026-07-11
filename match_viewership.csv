@@ -1,0 +1,6 @@
+broadcast_id,date,year,tournament,stage,language,peak_viewers_k,avg_viewers_k,hours_watched_m,is_cs2_era
+B001,2016-04-03,2016,MLG Columbus 2016,Grand Final,EN,1330,10,25.0,0
+B006,2021-11-07,2021,PGL Stockholm 2021,Grand Final,EN,2748,10,41.0,0
+B012,2024-03-31,2024,PGL Major Copenhagen 2024,Grand Final,EN,1797,10,34.0,1
+B016,2025-06-22,2025,BLAST.tv Austin Major 2025,Grand Final,EN,1789,10,35.0,1
+B018,2026-06-21,2026,IEM Cologne Major 2026,Grand Final,EN,2750,10,41.0,1

@@ -1,0 +1,8 @@
+tournament_id,date,year,month,tournament_name,location,tier,prize_pool_usd,winner_team,runner_up_team,mvp_player,peak_viewers_k,is_major,is_cs2_era
+T001,2013-11-28,2013,11,DreamHack Winter 2013,Sweden,Major,250000,Fnatic,NiP,JW,70,1,0
+T008,2016-04-03,2016,4,MLG Columbus 2016,USA,Major,1000000,Luminosity,Na'Vi,coldzera,1300,1,0
+T010,2017-01-29,2017,1,ELEAGUE Atlanta 2017,USA,Major,1000000,Astralis,Virtus.pro,Kjaerbye,1100,1,0
+T014,2019-03-03,2019,3,IEM Katowice 2019,Poland,Major,1000000,Astralis,ENCE,device,1230,1,0
+T017,2021-11-07,2021,11,PGL Stockholm 2021,Sweden,Major,2000000,Na'Vi,G2,s1mple,2748,1,0
+T021,2024-03-31,2024,3,PGL Major Copenhagen 2024,Denmark,Major,1250000,NAVI,FaZe,jL,1797,1,1
+T025,2026-06-21,2026,6,IEM Cologne Major 2026,Germany,Major,1250000,Falcons,FURIA,m0NESY,2750,1,1
