@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form version="1.1">
+  <label>CS:GO/CS2 Esports Analytics</label>
+  <description>Comprehensive dashboard: player base, team rankings, tournament results, viewership, and cross-sourcetype correlations.</description>
+
+  <!-- Row 1: KPI Tiles -->
+  <row>
+    <panel>
+      <title>Total Tournaments Tracked</title>
+      <single>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | stats count</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Total Prize Money Awarded</title>
+      <single>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | stats sum(prize_pool_usd) as total_prize</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">USD</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Latest Concurrent Players</title>
+      <single>
+        <search>
+          <query>index=counterstrike_index sourcetype=game_economics | sort - year_month | head 1 | table year_month avg_concurrent_players</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+    </panel>
+    <panel>
+      <title>Current #1 Team</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=team_rankings hltv_rank&lt;50 | sort - year_month | dedup team_name | sort hltv_rank | head 1 | table team_name country_iso3 hltv_rank hltv_points</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="wrap">false</option>
+      </table>
+    </panel>
+  </row>
+
+  <!-- Row 2: Player Base & Economy Trends -->
+  <row>
+    <panel>
+      <title>Concurrent Players Over Time</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=game_economics | timechart span=1mon max(avg_concurrent_players) as "Avg Players" max(peak_concurrent_players) as "Peak Players"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Month</option>
+        <option name="charting.axisTitleY.text">Concurrent Players</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Skins Market Value Trend</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=game_economics | timechart span=1mon max(estimated_skins_market_usd_m) as "Market (M USD)"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Month</option>
+        <option name="charting.axisTitleY.text">Market Value (Millions USD)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Operation Impact on Player Count</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=game_economics | stats avg(avg_concurrent_players) as "Avg Players" by has_active_operation | rename has_active_operation as "Active Operation"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>CS2 Era Transition</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=game_economics | timechart span=1mon max(avg_concurrent_players) as avg_players by is_cs2_era | rename is_cs2_era as "CS2 Era"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Month</option>
+        <option name="charting.axisTitleY.text">Avg Players</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- Row 3: Team Rankings -->
+  <row>
+    <panel>
+      <title>Top 10 Teams (Current)</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=team_rankings hltv_rank&lt;30 | sort - year_month | dedup team_name | sort hltv_rank | table hltv_rank team_name country_iso3 hltv_points | head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Rank Trend (Top Teams Over Time)</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=team_rankings hltv_rank&lt;10 | timechart span=1mon min(hltv_rank) as rank by team_name limit=20</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Month</option>
+        <option name="charting.axisTitleY.text">Rank (Lower is Better)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Teams by Country (Curated Tier)</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=team_rankings hltv_rank&lt;50 | dedup team_name | stats count by country_iso3 | sort - count | head 15</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Country</option>
+        <option name="charting.axisTitleY.text">Team Count</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Global Team Population (All Tiers)</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=team_rankings | timechart span=1mon dc(team_name) as "Active Teams"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Month</option>
+        <option name="charting.axisTitleY.text">Distinct Teams</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- Row 4: Player Stats -->
+  <row>
+    <panel>
+      <title>Top 10 Players by Peak Rating</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=player_stats | sort - peak_hltv_rating | table player_handle real_name country_iso3 primary_role peak_hltv_rating major_tournament_wins | head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Major Winners Leaderboard</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=player_stats major_tournament_wins&gt;0 | sort - major_tournament_wins peak_hltv_rating | table player_handle major_tournament_wins estimated_earnings_usd | head 15</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Role Distribution</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=player_stats | top limit=10 primary_role</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">pie</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Player Nationality Distribution (Top 20)</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=player_stats | top limit=20 country_iso3</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Country</option>
+        <option name="charting.axisTitleY.text">Player Count</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- Row 5: Tournaments & Viewership -->
+  <row>
+    <panel>
+      <title>Prize Pool Growth Over Time</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | timechart span=1y sum(prize_pool_usd) as "Total Prize Pool"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.axisTitleX.text">Year</option>
+        <option name="charting.axisTitleY.text">Prize Pool (USD)</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Major vs Tier1 Events per Year</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | timechart span=1y count by tier</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisTitleX.text">Year</option>
+        <option name="charting.axisTitleY.text">Event Count</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Most Successful Teams (Tournament Wins)</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | top limit=15 winner_team</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Team</option>
+        <option name="charting.axisTitleY.text">Wins</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>MVP Frequency</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | top limit=15 mvp_player</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Player</option>
+        <option name="charting.axisTitleY.text">MVP Awards</option>
+      </chart>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Peak Viewers by Tournament (Top 15)</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | sort - peak_viewers_k | table tournament_name year peak_viewers_k winner_team | head 15</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>Viewership by Broadcast Language</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=match_viewership | stats sum(hours_watched_m) as "Total Hours Watched" by language | sort - "Total Hours Watched" | head 10</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.axisTitleX.text">Language</option>
+        <option name="charting.axisTitleY.text">Hours Watched (Millions)</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Viewership Trend (Grand Finals)</title>
+      <chart>
+        <search>
+          <query>index=counterstrike_index sourcetype=match_viewership stage="Grand Final" | timechart span=1y max(peak_viewers_k) as "Peak Viewers"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisTitleX.text">Year</option>
+        <option name="charting.axisTitleY.text">Peak Viewers (K)</option>
+      </chart>
+    </panel>
+  </row>
+
+  <!-- Row 6: Cross-Sourcetype Correlation -->
+  <row>
+    <panel>
+      <title>Tournament Winners' Current Rank</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results is_major=1 | stats values(winner_team) as winner_team by tournament_id | rename winner_team as team_name | join type=left team_name [ search index=counterstrike_index sourcetype=team_rankings hltv_rank&lt;50 | sort - year_month | dedup team_name | table team_name hltv_rank hltv_points ] | table tournament_id team_name hltv_rank hltv_points | sort tournament_id</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+  <row>
+    <panel>
+      <title>MVP Players' Career Stats</title>
+      <table>
+        <search>
+          <query>index=counterstrike_index sourcetype=tournament_results | stats count as "MVP Count" by mvp_player | rename mvp_player as player_handle | join type=left player_handle [ search index=counterstrike_index sourcetype=player_stats | table player_handle peak_hltv_rating estimated_earnings_usd major_tournament_wins ] | table player_handle "MVP Count" peak_hltv_rating estimated_earnings_usd major_tournament_wins | sort - "MVP Count"</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+
+</form>
